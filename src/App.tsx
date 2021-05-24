@@ -1,9 +1,11 @@
 import React from 'react';
 
-function App() {
+const App: React.FC = () => {
   return (
-    <h1>Marvel</h1>
+    <>
+      <h1> Marvel </h1>
+    </>
   );
-}
+};
 
 export default App;
