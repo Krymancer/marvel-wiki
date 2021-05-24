@@ -1,5 +1,7 @@
 import React from 'react';
 
+import './index.css';
+
 interface Props {
   name: string;
   thumbnail: string;
@@ -7,9 +9,9 @@ interface Props {
 
 const HeroCard: React.FC<Props> = (props: Props) => {
   return (
-    <div className="container">
+    <div className="hero-container">
       <img className="hero-thumbnail" src={props.thumbnail}></img>
-      <h2 className="hero-name">{props.name}</h2>
+      <span className="hero-name">{props.name}</span>
     </div>
   );
 };
