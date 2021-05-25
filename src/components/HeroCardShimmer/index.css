@@ -1,0 +1,54 @@
+.hero-shimmer-container {
+  margin: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 1em;
+  min-width: 10em;
+  width: 10em;
+
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  transition: 0.3s;
+}
+
+.hero-shimmer-thumbnail {
+  width: 10em;
+  height: 10em;
+  margin-bottom: 1em;
+}
+
+.hero-shimmer-name {
+  width: 8em;
+  padding: 1em;
+  vertical-align: center;
+  font-weight: 700;
+}
+
+.hero-shimmer-thumbnail,
+.hero-shimmer-name {
+  background: #f6f7f8;
+  background-image: linear-gradient(
+    to right,
+    #f6f7f8 0%,
+    #edeef1 20%,
+    #f6f7f8 40%,
+    #f6f7f8 100%
+  );
+  background-repeat: no-repeat;
+  animation-name: shimmer;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -10em 0;
+  }
+
+  100% {
+    background-position: 10em 0;
+  }
+}
