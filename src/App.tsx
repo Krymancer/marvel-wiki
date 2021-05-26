@@ -1,11 +1,11 @@
 import React from 'react';
 
-import Main from './pages/Main';
+import AppRouter from './routes/routes';
 
 const App: React.FC = () => {
   return (
     <>
-      <Main />
+      <AppRouter />
     </>
   );
 };

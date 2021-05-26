@@ -50,6 +50,7 @@ const Main: React.FC = () => {
   const items = characters.map((character) => (
     <HeroCard
       key={character.id}
+      id={character.id}
       name={character.name}
       thumbnail={character.thumbnail.path + '.' + character.thumbnail.extension}
     />
