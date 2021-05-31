@@ -25,7 +25,11 @@ const HeroCard: React.FC<Props> = (props: Props) => {
       onClick={() => handleHeroCardClick(props.id)}
       className="hero-container"
     >
-      <img className="hero-thumbnail" src={props.thumbnail}></img>
+      <img
+        className="hero-thumbnail"
+        src={props.thumbnail}
+        alt={props.name}
+      ></img>
       <span className="hero-name">{props.name}</span>
     </div>
   );

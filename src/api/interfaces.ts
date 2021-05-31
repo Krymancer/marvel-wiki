@@ -10,6 +10,7 @@ export interface ResultInterface {
 
 export interface APIResponse {
   data: {
+    count: number;
     results: ResultInterface[];
   };
 }

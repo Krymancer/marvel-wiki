@@ -52,6 +52,8 @@ const Details: React.FC<RouteComponentProps<Params>> = (
       setCharacter(result);
       console.log('result', result);
     });
+    // Disable error with empty dependeces, as so this effect needs to run only once
+    // eslint-disable-next-line
   }, []);
 
   /**
