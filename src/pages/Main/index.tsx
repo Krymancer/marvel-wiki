@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 import InfiniteScroll from 'react-infinite-scroller';
 
@@ -8,86 +9,103 @@ import SearchBar from '../../components/SearchBar';
 
 import api from '../../api';
 import { publicKey } from '../../utils/apiConstants';
-import { APIResponse, ResultInterface } from '../../api/interfaces';
+import { CharacterDataWrapper, Character } from '../../api/interfaces';
 
 import './index.css';
-import _ from 'underscore';
 
 const Main: React.FC = () => {
-  const [characters, setCharacters] = useState<ResultInterface[]>([]);
+  const [characters, setCharacters] = useState<Character[]>([]);
+  const [total, setTotal] = useState<number>(1);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [hasSearched, setHasSearched] = useState<boolean>(false);
-  const charactersLimit = 1493;
+
+  const CancelToken = axios.CancelToken;
+  const source = CancelToken.source();
 
   useEffect(() => {
-    updateCharacters();
-    // eslint-disable-next-line
-  }, [searchTerm]);
-
-  /**
-   * Update Characetrs List
-   * @param {ResultInterface[]} result result
-   */
-  function makeCharactersArray(result: ResultInterface[]): void {
-    const restultUniques = _.uniq(result);
-    setCharacters(restultUniques);
-  }
-
-  /**
-   * Update Characetrs List
-   */
-  function updateCharacters(): void {
-    const data = loadCharacters();
-    if (searchTerm == '' && !hasSearched) {
-      data.then((result) => makeCharactersArray(characters.concat(result)));
-    } else if (searchTerm == '' && hasSearched) {
-      data.then((result) => makeCharactersArray(result));
-      setHasSearched(!hasSearched);
-    } else if (searchTerm != '' && hasSearched) {
-      console.log('esse');
-      data.then((result) => makeCharactersArray(result));
+    if (searchTerm != '') {
+      searchCharacters();
     } else {
-      data.then((result) => makeCharactersArray(result));
-      setHasSearched(!hasSearched);
+      setCharacters([]);
+      updateCharacters();
     }
-  }
+
+    return () => source.cancel();
+    // eslint-disable-next-line
+  }, [searchTerm]); // cant put the methods inside useEffect as a dependency because we use them in the infinite loader
 
   /**
-   * Update Characetrs List
+   * Handle Search
    *
-   * @param {string} term search term
+   * @param {string} term the term to search
    */
   function handleSearch(term: string): void {
     setSearchTerm(term);
   }
 
   /**
-   * Fecth the characters from API
-   * @return {Promise<ResultInterface[]>} The selected characters
+   * LoadChar
    */
-  function loadCharacters(): Promise<ResultInterface[]> {
-    let URI = 'characters?apikey=' + publicKey;
+  function searchCharacters(): void {
+    const URI = 'characters';
+    const params = {
+      apikey: publicKey,
+      limit: 20,
+      nameStartsWith: searchTerm,
+    };
 
-    if (searchTerm != '') {
-      URI += '&nameStartsWith=' + searchTerm;
-    } else {
-      '&limit=20&offset=' + characters.length;
+    try {
+      api<CharacterDataWrapper>('GET', URI, params).then((axiosResponse) => {
+        const response = axiosResponse.data.data; // Extracting data from axios response
+
+        setTotal(response?.total ?? 0);
+        setCharacters(response?.results ?? []);
+      });
+    } catch (error) {
+      if (axios.isCancel(error)) {
+        console.log('Marvel API request got cancelled');
+      } else {
+        throw error;
+      }
     }
+  }
 
-    return api<APIResponse>('GET', URI).then((result) => {
-      return result.data.data.results;
-    });
+  /**
+   * Update Char
+   */
+  function updateCharacters(): void {
+    loadCharacters();
+  }
+
+  /**
+   * LoadChar
+   */
+  function loadCharacters(): void {
+    const URI = 'characters';
+    const params = {
+      apikey: publicKey,
+      limit: 20,
+      offset: characters.length,
+    };
+    try {
+      api<CharacterDataWrapper>('GET', URI, params).then((axiosResponse) => {
+        const response = axiosResponse.data.data; // Extracting data from axios response
+
+        setTotal(response?.total ?? 0);
+        setCharacters(characters.concat(response?.results ?? []));
+      });
+    } catch (error) {
+      if (axios.isCancel(error)) {
+        console.log('Marvel API request got cancelled');
+      } else {
+        throw error;
+      }
+    }
   }
 
   const loader = <HeroCardShimmer key={'loader'} />;
 
   const items = characters.map((character) => (
-    <HeroCard
-      key={character.id}
-      id={character.id}
-      name={character.name}
-      thumbnail={character.thumbnail.path + '.' + character.thumbnail.extension}
-    />
+    <HeroCard key={character.id} character={character} />
   ));
 
   return (
@@ -97,7 +115,7 @@ const Main: React.FC = () => {
         key={'infinitescroll'}
         pageStart={20}
         loadMore={updateCharacters}
-        hasMore={characters.length < charactersLimit}
+        hasMore={characters.length < total}
         loader={loader}
       >
         <div className="container">{items}</div>
